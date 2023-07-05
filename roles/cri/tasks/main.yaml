@@ -1,0 +1,77 @@
+---
+- name: modprobe
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ kernel_modules }}"
+
+- name: modprobe permanent
+  template:
+    src: modprobe
+    dest: /etc/modules-load.d/kubeadm-modules.conf
+    mode: "0644"
+
+- name: Load kernel module
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - br_netfilter
+    - overlay
+
+- name: Copy kernel module load list for boot
+  template:
+    src: containerd.conf
+    dest: /etc/modules-load.d/containerd.conf
+    mode: '0644'
+
+- name: Add sysctl conf
+  sysctl:
+    name: "{{ item }}"
+    value: "1"
+  with_items:
+  - net.ipv4.ip_forward
+  - net.bridge.bridge-nf-call-iptables
+  - net.bridge.bridge-nf-call-ip6tables
+
+- name: Set up the Docker GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Get Ubuntu release version
+  shell: lsb_release -cs
+  register: ubuntu_version
+
+- name: Get architecture
+  shell: dpkg --print-architecture
+  register: architecture
+
+- name: Add docker apt repository
+  apt_repository:
+    repo: "deb [arch={{ architecture.stdout }}] https://download.docker.com/linux/ubuntu {{ ubuntu_version.stdout }} stable"
+    state: present
+
+- name: Install Containerd
+  apt:
+    name: containerd.io
+    state: present
+    update_cache: yes
+
+- name: mkdir
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - /etc/containerd
+
+- name: copy containerd config
+  shell: containerd config default > /etc/containerd/config.toml
+
+- name: Start and enable Containerd service
+  systemd:
+    name: containerd
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+

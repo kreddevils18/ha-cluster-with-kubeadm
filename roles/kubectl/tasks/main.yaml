@@ -1,0 +1,11 @@
+---
+
+- name: Install kubectl
+  apt:
+    name: kubectl
+    update_cache: yes
+
+- name: Hold kubectl at their current version
+  dpkg_selections:
+    name: kubectl
+    selection: hold

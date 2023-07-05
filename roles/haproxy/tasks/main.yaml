@@ -1,0 +1,56 @@
+---
+- name: Install haproxy
+  apt:
+    name: haproxy
+    update_cache: yes
+    state: present
+
+- name: Create haproxy conf empty file
+  copy:
+    content: ""
+    dest: /etc/haproxy/haproxy.cfg
+    force: yes
+
+- name: Configure haproxy
+  template:
+    src: haproxy.cfg
+    dest: /etc/haproxy/haproxy.cfg
+
+- name: Start and enable haproxy service
+  systemd:
+    name: haproxy
+    state: restarted
+    daemon-reload: yes
+    enabled: yes
+
+- name: Install keepalived
+  apt:
+    name: keepalived
+    state: present
+    update_cache: yes
+
+- name: Create keepalived.conf empty file
+  copy:
+    content: ""
+    dest: /etc/keepalived/keepalived.conf
+    force: yes
+
+- name: Create keepalived.conf on worker node
+  template:
+    src: backup_keepalived.cfg
+    dest: /etc/keepalived/keepalived.conf
+  when: inventory_hostname != "loadbalancer1"
+
+- name: Create keepalived.conf on master node
+  template:
+    src: master_keepalived.cfg
+    dest: /etc/keepalived/keepalived.conf
+  when: inventory_hostname == "loadbalancer1"
+
+- name: Restart keepalived
+  systemd:
+    name: keepalived
+    state: restarted
+    enabled: yes
+    daemon-reload: yes
+

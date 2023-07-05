@@ -1,0 +1,10 @@
+---
+- name: Apply configurations to loadbalancer group
+  hosts: loadbalancers
+  vars_files:
+    - /vagrant/vault.yaml
+  gather_facts: false
+  become: true
+
+  roles:
+    - haproxy

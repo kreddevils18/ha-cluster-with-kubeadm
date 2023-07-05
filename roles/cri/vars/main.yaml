@@ -1,0 +1,14 @@
+kernel_modules:
+  - bridge
+  - ip_tables
+  - nf_conntrack
+  - nf_nat
+  - x_tables
+  - overlay
+  - br_netfilter
+  - iptable_mangle
+  - iptable_nat
+  - xt_REDIRECT
+  - xt_conntrack
+  - xt_owner
+  - xt_tcpudp

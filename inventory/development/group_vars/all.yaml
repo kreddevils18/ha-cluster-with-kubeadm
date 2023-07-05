@@ -1,0 +1,2 @@
+cluster_admin: vagrant
+cluster_vip: 192.168.2.16

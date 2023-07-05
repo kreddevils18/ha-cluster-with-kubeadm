@@ -1,0 +1,26 @@
+all:
+  children:
+    # loadbalancers:
+    #   hosts:
+    #     loadbalancer1:
+    #       ansible_host: 192.168.2.11
+    #       ansbile_user: vagrant
+    #     loadbalancer2:
+    #       ansible_host: 192.168.2.12
+    #       ansbile_user: vagrant
+    masters:
+      hosts:
+        master1:
+          ansible_host: 192.168.3.11
+          ansbile_user: vagrant
+        # master2:
+        #   ansible_host: 192.168.3.12
+        #   ansbile_user: vagrant
+    workers:
+      hosts:
+        worker1:
+          ansible_host: 192.168.4.11
+          ansbile_user: vagrant
+        worker2:
+          ansible_host: 192.168.4.12
+          ansbile_user: vagrant

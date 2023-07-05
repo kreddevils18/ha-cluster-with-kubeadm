@@ -1,0 +1,24 @@
+---
+- name: Disable swap
+  command: swapoff -a
+
+- name: Remove swap entry from /etc/fstab
+  lineinfile:
+    dest: /etc/fstab
+    regexp: swap
+    state: absent
+
+- name: Set timezone to Asia/Tokyo
+  timezone:
+    name: Asia/Tokyo
+
+- name: Install https repo for apt
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - gnupg
+    state: present
+    update_cache: yes

@@ -1,0 +1,56 @@
+---
+- name: Add Google Cloud public signing key
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
+- name: Add Kubernetes apt repository
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes.list
+
+- name: Install kubeadm and kubelet
+  apt:
+    pkg:
+      - kubelet
+      - kubeadm
+    update_cache: yes
+
+- name: Hold kubelet and kubeadm at their current version
+  dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  with_items:
+    - kubelet
+    - kubeadm
+
+- name: Create empty kubelet config
+  copy:
+    content: ""
+    dest: /etc/default/kubelet
+    force: yes
+
+- name: Create kubelet config
+  template:
+    src: kubelet
+    dest: /etc/default/kubelet
+
+- name: Start and enable kubelet service
+  systemd:
+    name: kubelet
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+
+- name: Install kubectl
+  apt:
+    name: kubectl
+    update_cache: yes
+  when: inventory_hostname in groups["masters"]
+
+- name: Hold kubectl at their current version
+  dpkg_selections:
+    name: kubectl
+    selection: hold
+  when: inventory_hostname in groups["masters"]
